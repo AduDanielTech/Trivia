@@ -1,0 +1,28 @@
+{
+  "name": "trivia-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@nuxtjs/color-mode": "^3.5.2",
+    "@nuxtjs/supabase": "^1.4.6",
+    "@pinia/nuxt": "^0.9.0",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.13",
+    "nuxt": "^3.14.0",
+    "pinia": "^2.2.0",
+    "tailwindcss": "^3.4.0"
+  },
+  "dependencies": {
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "@vueuse/core": "^11.0.0",
+    "@vueuse/nuxt": "^11.0.0"
+  }
+}
