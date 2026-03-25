@@ -1,5 +1,6 @@
 # Nuxt
 .nuxt
+nuxt-build
 .output
 .data
 .env

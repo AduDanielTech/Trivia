@@ -1,4 +1,7 @@
 export default defineNuxtConfig({
+  // Workaround for Windows setups where creating `.nuxt/dev` can fail.
+  // Keeping this out of a dot-directory also plays nicer with some AV/sync tools.
+  buildDir: 'nuxt-build',
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
 
@@ -14,6 +17,8 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/auth/login',
       callback: '/auth/confirm',
+      // Only protect these routes; everything else is public unless gated by app middleware.
+      include: ['/dashboard*', '/quiz*', '/upload*', '/leaderboard*'],
       exclude: ['/auth/login', '/auth/signup', '/auth/forgot-password', '/auth/confirm'],
     },
   },
@@ -41,7 +46,7 @@ export default defineNuxtConfig({
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap',
+          href: 'https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=Lexend:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap',
         },
       ],
     },

@@ -1,64 +1,41 @@
 <template>
-  <div class="bg-navy-700 border border-navy-500 rounded-xl p-5" role="region" aria-labelledby="streak-heading">
-
-    <!-- Header -->
-    <div class="flex items-center gap-4 mb-5">
-      <div class="flex items-center gap-1 flex-shrink-0" aria-hidden="true">
-        <span class="text-3xl animate-flame">🔥</span>
-        <span class="font-mono text-3xl font-extrabold text-gold-500">{{ userStore.streak }}</span>
+  <div 
+    class="rounded-3xl border-2 p-7 transition-all duration-500"
+    :class="userStore.streakAtRisk ? 'border-error/20 bg-error/5 animate-pulse' : 'border-paper-200 bg-white dark:border-white/10 dark:bg-white/5'"
+  >
+    <div class="flex items-center justify-between">
+      <div class="space-y-1">
+        <h3 class="text-[10px] font-black uppercase tracking-widest text-sage">Current Streak</h3>
+        <div class="flex items-baseline gap-2">
+          <span class="font-display text-5xl font-black text-scholar-700 dark:text-scholar-100">{{ userStore.streak }}</span>
+          <span class="text-xl">🔥</span>
+        </div>
       </div>
-      <div>
-        <h3 id="streak-heading" class="text-sm font-bold text-white">Daily Streak</h3>
-        <p class="text-xs mt-0.5 transition-colors"
-          :class="userStore.streakAtRisk ? 'text-red-400 font-semibold' : 'text-navy-400'"
-          role="status" :aria-label="streakStatusAria">
-          {{ userStore.streakAtRisk ? '⚠ Streak at risk today!' : `${userStore.streak} day${userStore.streak !== 1 ? 's' : ''} in a row` }}
+      <div class="text-right">
+        <p :class="userStore.streakAtRisk ? 'text-error font-black' : 'text-scholar-600 font-bold'" class="text-xs uppercase tracking-tighter">
+          {{ userStore.streakAtRisk ? 'Risk: Practice Now' : 'Keep the flame alive' }}
         </p>
       </div>
     </div>
 
-    <!-- Freeze tokens -->
-    <div class="border-t border-navy-600 pt-4">
-      <div class="flex items-center gap-1.5 mb-3">
-        <span class="text-xs font-bold uppercase tracking-widest text-navy-400">🛡 Streak Freeze Tokens</span>
-        <button
-          tabindex="0" role="button"
-          class="w-4 h-4 rounded-full bg-navy-500 text-navy-400 text-[10px] flex items-center justify-center cursor-pointer hover:bg-navy-400 hover:text-white transition-colors"
-          aria-label="What are streak freeze tokens?"
-          @click="showInfo = !showInfo" @keydown.enter="showInfo = !showInfo" @keydown.space.prevent="showInfo = !showInfo"
-        >?</button>
-      </div>
+    <div class="my-6 h-px w-full bg-paper-100 dark:bg-white/5" />
 
-      <Transition name="info">
-        <div v-if="showInfo"
-          class="bg-navy-600 rounded-md px-3 py-2 text-[11px] text-navy-400 leading-relaxed mb-3"
-          role="note" aria-live="polite">
-          Streak freeze tokens protect your streak if you miss a day. You earn one every 7 days.
-        </div>
-      </Transition>
-
-      <div class="flex gap-2 mb-4" role="list">
-        <div
-          v-for="i in maxTokens" :key="i"
-          class="w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-all duration-200 border"
-          :class="i <= userStore.streakFreezeTokens
-            ? 'bg-blue-500/10 border-blue-500/30 shadow-[0_0_8px_rgba(59,130,246,0.15)]'
-            : 'bg-navy-600 border-navy-500'"
-          role="listitem"
-          :aria-label="`Token ${i}: ${i <= userStore.streakFreezeTokens ? 'available' : 'used'}`"
+    <!-- Freeze Tokens -->
+    <div class="space-y-4">
+      <p class="text-[10px] font-black uppercase tracking-widest text-sage">Streak Freezes</p>
+      <div class="flex gap-3">
+        <div 
+          v-for="i in 3" 
+          :key="i"
+          class="flex h-12 w-full items-center justify-center rounded-2xl border-2 transition-all"
+          :class="i <= userStore.streakFreezeTokens ? 'border-scholar-600/20 bg-scholar-50 text-scholar-600 dark:bg-scholar-900/20' : 'border-paper-100 bg-paper-50 opacity-30 dark:border-white/5 dark:bg-white/5'"
         >
-          <span aria-hidden="true">{{ i <= userStore.streakFreezeTokens ? '🛡' : '◌' }}</span>
+          <span class="text-xl">🛡️</span>
         </div>
       </div>
-
-      <button
-        v-if="userStore.streakAtRisk && userStore.streakFreezeTokens > 0"
-        class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-navy-500 bg-transparent text-sm font-semibold text-white hover:bg-navy-600 hover:border-navy-400 transition-all duration-200"
-        :aria-label="`Use a streak freeze token. You have ${userStore.streakFreezeTokens} remaining.`"
-        @click="useFreeze"
-      >
-        <span aria-hidden="true">🛡</span> Use Freeze Token
-      </button>
+      <p class="text-[10px] font-medium leading-relaxed text-sage">
+        Protects your streak if you miss a day. Earn more by reaching new XP milestones.
+      </p>
     </div>
   </div>
 </template>
@@ -66,19 +43,4 @@
 <script setup lang="ts">
 import { useUserStore } from '~/stores/index'
 const userStore = useUserStore()
-const sound     = useSound()
-const showInfo  = ref(false)
-const maxTokens = 3
-
-const streakStatusAria = computed(() =>
-  userStore.streakAtRisk
-    ? `Warning: your ${userStore.streak}-day streak is at risk. You have ${userStore.streakFreezeTokens} freeze tokens.`
-    : `You are on a ${userStore.streak}-day streak.`
-)
-const useFreeze = () => { userStore.useStreakFreeze(); sound.playSuccess() }
 </script>
-
-<style scoped>
-.info-enter-active, .info-leave-active { transition: all 0.2s ease; }
-.info-enter-from, .info-leave-to { opacity: 0; transform: translateY(-4px); }
-</style>

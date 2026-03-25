@@ -1,59 +1,50 @@
 <template>
-  <AuthCard title="Welcome back" subtitle="Sign in to continue your exam preparation journey" heading-id="login-heading">
-    <div v-if="authStore.error"
-      class="flex items-center gap-2 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium mb-5"
-      role="alert" aria-live="assertive">
-      <span aria-hidden="true">⚠</span>{{ authStore.error }}
+  <AuthCard title="Welcome Back" subtitle="Log in to your scholar portal." heading-id="login-heading">
+    
+    <div v-if="authStore.error" class="mb-4 rounded-xl border border-error/20 bg-error/5 p-3 text-xs font-bold text-error animate-reveal">
+      <p class="flex items-center gap-2"><span>⚠️</span> {{ authStore.error }}</p>
     </div>
 
-    <form novalidate class="flex flex-col gap-4" aria-labelledby="login-heading" @submit.prevent="handleLogin">
-      <AuthField v-model="form.email" label="Email address" type="email" placeholder="you@example.com"
-        autocomplete="email" icon="✉" :required="true" :error="errors.email"
-        @input="clearFieldError('email')" />
-
-      <AuthField v-model="form.password" label="Password" type="password" placeholder="Enter your password"
-        autocomplete="current-password" icon="🔒" :required="true" :error="errors.password"
-        @input="clearFieldError('password')" />
-
-      <div class="flex justify-end -mt-1">
-        <NuxtLink to="/auth/forgot-password"
-          class="text-xs text-navy-400 no-underline hover:text-gold-500 transition-colors"
-          aria-label="Forgot your password? Reset it here">
-          Forgot password?
-        </NuxtLink>
+    <form @submit.prevent="handleLogin" class="space-y-4" novalidate>
+      <AuthField v-model="form.email" label="Email" type="email" placeholder="you@academy.com" icon="✉" :required="true" :error="errors.email" />
+      
+      <div class="space-y-1">
+        <AuthField v-model="form.password" label="Password" type="password" placeholder="••••••••" icon="🔒" :required="true" :error="errors.password" />
+        <div class="flex justify-end pr-1">
+          <NuxtLink to="/auth/forgot-password" class="text-[9px] font-black uppercase tracking-widest text-sage hover:text-scholar-600 transition-colors">
+            Forgot Credentials?
+          </NuxtLink>
+        </div>
       </div>
 
-      <button type="submit"
-        class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gold-500 text-navy-900 text-[15px] font-bold hover:bg-gold-400 transition-all duration-200 shadow-cta mt-1 disabled:opacity-60"
-        :disabled="authStore.loading" :aria-busy="authStore.loading" aria-label="Sign in to TRIVIA">
-        <span v-if="authStore.loading" class="w-4 h-4 border-2 border-navy-900/30 border-t-navy-900 rounded-full animate-spin-slow flex-shrink-0" aria-hidden="true" />
-        {{ authStore.loading ? 'Signing in…' : 'Sign In' }}
+      <button type="submit" :disabled="authStore.loading"
+        class="w-full rounded-xl bg-scholar-600 py-3.5 font-display text-base font-black text-white shadow-xl shadow-scholar-600/20 transition-all hover:bg-scholar-700 active:scale-95 disabled:opacity-50">
+        {{ authStore.loading ? 'Authenticating...' : 'Enter Portal' }}
       </button>
 
-      <div class="flex items-center gap-3 text-navy-400 text-xs" role="separator" aria-label="or">
-        <div class="flex-1 h-px bg-navy-500" />
-        <span>or continue with</span>
-        <div class="flex-1 h-px bg-navy-500" />
+      <div class="flex items-center gap-3 py-1">
+        <div class="h-px flex-1 bg-paper-100 dark:bg-white/10"></div>
+        <span class="text-[9px] font-black uppercase tracking-widest text-sage dark:text-paper-500">Social Entry</span>
+        <div class="h-px flex-1 bg-paper-100 dark:bg-white/10"></div>
       </div>
 
-      <button type="button"
-        class="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-lg border border-navy-500 bg-transparent text-sm font-semibold text-white hover:bg-navy-600 hover:border-navy-400 transition-all duration-200 disabled:opacity-60"
-        :disabled="authStore.loading" aria-label="Sign in with Google" @click="authStore.signInWithGoogle()">
-        <span aria-hidden="true" class="w-5 h-5 bg-white text-[#4285F4] rounded-sm flex items-center justify-center text-xs font-black flex-shrink-0">G</span>
-        Sign in with Google
+      <button type="button" @click="authStore.signInWithGoogle()"
+        class="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-paper-100 bg-white py-2.5 text-sm font-bold text-paper-900 transition-all hover:bg-paper-50 dark:border-white/10 dark:bg-white/5 dark:text-white">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="h-4 w-4" alt="Google" />
+        Google Identity
       </button>
     </form>
 
     <template #footer>
-      <p class="text-sm text-navy-400">
-        Don't have an account?
-        <NuxtLink to="/auth/signup" class="text-gold-500 no-underline font-semibold hover:text-gold-300 hover:underline transition-colors">
-          Create one — it's free
-        </NuxtLink>
+      <p class="text-xs font-bold text-sage dark:text-paper-400">
+        New to the academy? 
+        <NuxtLink to="/auth/signup" class="text-scholar-600 dark:text-scholar-400 underline underline-offset-4 hover:text-scholar-700">Create an account?</NuxtLink>
       </p>
     </template>
   </AuthCard>
 </template>
+
+
 
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
@@ -61,22 +52,18 @@ import AuthCard from '~/components/auth/AuthCard.vue'
 import AuthField from '~/components/auth/AuthField.vue'
 
 definePageMeta({ layout: 'auth' })
-useHead({ title: 'Sign In — TRIVIA' })
+useHead({ title: 'Scholar Login — MASTERY' })
 
 const authStore = useAuthStore()
-authStore.clearError()
-
-const form   = reactive({ email: '', password: '' })
+const form = reactive({ email: '', password: '' })
 const errors = reactive({ email: '', password: '' })
 
-const clearFieldError = (field: keyof typeof errors) => { errors[field] = ''; authStore.clearError() }
+const clearFieldError = (f: keyof typeof errors) => { errors[f] = ''; authStore.clearError() }
 
 const validate = () => {
-  errors.email = ''; errors.password = ''
-  let ok = true
-  if (!form.email) { errors.email = 'Email address is required.'; ok = false }
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { errors.email = 'Please enter a valid email.'; ok = false }
-  if (!form.password) { errors.password = 'Password is required.'; ok = false }
+  let ok = true; errors.email = ''; errors.password = ''
+  if (!form.email) { errors.email = 'Email required.'; ok = false }
+  if (!form.password) { errors.password = 'Security code required.'; ok = false }
   return ok
 }
 

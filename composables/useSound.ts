@@ -4,7 +4,18 @@
  * so it works offline and loads instantly.
  */
 export const useSound = () => {
-  const isEnabled = ref(true)
+  // Shared + persisted so layout/dashboard/quiz all reflect the same "audio mode" choice.
+  const isEnabled = useState<boolean>('trivia_sound_enabled', () => true)
+  const storageKey = 'trivia_sound_enabled'
+
+  if (process.client) {
+    const stored = localStorage.getItem(storageKey)
+    if (stored === '1') isEnabled.value = true
+    if (stored === '0') isEnabled.value = false
+    watch(isEnabled, (v) => {
+      localStorage.setItem(storageKey, v ? '1' : '0')
+    }, { immediate: true })
+  }
   let audioCtx: AudioContext | null = null
 
   const getCtx = () => {

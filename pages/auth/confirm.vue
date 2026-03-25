@@ -1,37 +1,77 @@
 <template>
-  <div class="min-h-screen bg-navy-900 flex items-center justify-center px-4" role="main" aria-labelledby="confirm-heading">
-    <div class="w-full max-w-sm bg-navy-700 border border-navy-500 rounded-xl p-12 text-center animate-scale-in">
-      <div v-if="status === 'loading'" class="flex flex-col items-center gap-4" aria-live="polite">
-        <div class="w-11 h-11 border-[3px] border-navy-500 border-t-gold-500 rounded-full animate-spin-slow" aria-hidden="true" />
-        <h1 id="confirm-heading" class="text-xl font-extrabold text-white">Confirming your account…</h1>
-        <p class="text-sm text-navy-400">Please wait a moment.</p>
+  <div class="min-h-screen bg-paper-50 transition-colors duration-500 dark:bg-ink-900 flex items-center justify-center px-6" role="main">
+    
+    <div class="w-full max-w-md bg-white border border-paper-200 rounded-[3rem] p-12 text-center shadow-2xl dark:bg-ink-800 dark:border-white/10 animate-reveal">
+      
+      <!-- State: Loading -->
+      <div v-if="status === 'loading'" class="flex flex-col items-center space-y-6" aria-live="polite">
+        <div class="relative h-16 w-16">
+          <div class="absolute inset-0 animate-ping rounded-full bg-scholar-600/20"></div>
+          <div class="relative flex h-16 w-16 items-center justify-center rounded-full bg-scholar-600 border-4 border-scholar-100 dark:border-scholar-900">
+             <span class="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <h1 class="font-display text-2xl font-black text-paper-900 dark:text-white">Verifying Identity</h1>
+          <p class="text-base font-medium text-sage">Syncing your credentials with the Academy...</p>
+        </div>
       </div>
-      <div v-else-if="status === 'success'" class="flex flex-col items-center gap-3" aria-live="assertive">
-        <span class="text-5xl font-black text-green-500" aria-hidden="true">✓</span>
-        <h1 id="confirm-heading" class="text-xl font-extrabold text-white">Account confirmed!</h1>
-        <p class="text-sm text-navy-400">Redirecting you to your dashboard…</p>
+
+      <!-- State: Success -->
+      <div v-else-if="status === 'success'" class="flex flex-col items-center space-y-6" aria-live="assertive">
+        <div class="flex h-20 w-20 items-center justify-center rounded-full bg-scholar-50 text-5xl dark:bg-scholar-900/30">
+          ✓
+        </div>
+        <div class="space-y-2">
+          <h1 class="font-display text-2xl font-black text-paper-900 dark:text-white">Access Granted</h1>
+          <p class="text-base font-medium text-sage">Welcome to the Hall of Scholars. Redirecting...</p>
+        </div>
       </div>
-      <div v-else class="flex flex-col items-center gap-3" aria-live="assertive" role="alert">
-        <span class="text-5xl text-red-500" aria-hidden="true">⚠</span>
-        <h1 id="confirm-heading" class="text-xl font-extrabold text-white">Confirmation failed</h1>
-        <p class="text-sm text-navy-400">{{ errorMessage }}</p>
-        <NuxtLink to="/auth/login" class="mt-2 px-6 py-2.5 bg-gold-500 text-navy-900 font-bold rounded-lg no-underline hover:bg-gold-400 transition-all">
-          Back to Sign In
+
+      <!-- State: Error -->
+      <div v-else class="flex flex-col items-center space-y-6" aria-live="assertive" role="alert">
+        <div class="flex h-20 w-20 items-center justify-center rounded-full bg-error/5 text-5xl">
+          ⚠️
+        </div>
+        <div class="space-y-2">
+          <h1 class="font-display text-2xl font-black text-paper-900 dark:text-white">Identity Mismatch</h1>
+          <p class="text-base font-medium text-sage leading-relaxed">{{ errorMessage }}</p>
+        </div>
+        <NuxtLink to="/auth/login" class="inline-block w-full py-4 bg-scholar-600 text-white font-black rounded-2xl shadow-lg hover:bg-scholar-700 transition-all">
+          Return to Portal
         </NuxtLink>
       </div>
+
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 definePageMeta({ layout: false })
-useHead({ title: 'Confirming Account — TRIVIA' })
+useHead({ title: 'Identity Verification — MASTERY' })
+
 const status = ref<'loading'|'success'|'error'>('loading')
-const errorMessage = ref('The confirmation link may have expired. Please request a new one.')
+const errorMessage = ref('This verification link is no longer valid or has expired.')
+
 onMounted(async () => {
   const user = useSupabaseUser()
-  await new Promise(r => setTimeout(r, 1500))
-  if (user.value) { status.value = 'success'; setTimeout(() => navigateTo('/'), 1500) }
-  else status.value = 'error'
+  // Artificial delay for premium feel
+  await new Promise(r => setTimeout(r, 2000))
+  
+  if (user.value) { 
+    status.value = 'success'
+    setTimeout(() => navigateTo('/dashboard'), 1500) 
+  } else { 
+    status.value = 'error' 
+  }
 })
 </script>
+
+<style scoped>
+.font-display { font-family: 'Lexend', sans-serif; }
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-reveal { animation: reveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+</style>

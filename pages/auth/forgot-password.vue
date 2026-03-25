@@ -1,31 +1,48 @@
 <template>
-  <AuthCard title="Reset password" subtitle="Enter your email and we'll send you a reset link" heading-id="forgot-heading">
+  <AuthCard title="Credential Recovery" subtitle="Provide your scholar email to receive a secure access link." heading-id="forgot-heading">
+    
+    <!-- Status Messaging -->
     <div v-if="authStore.successMessage"
-      class="flex items-start gap-2 px-4 py-3 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-medium mb-5"
-      role="status" aria-live="polite">
-      <span aria-hidden="true">✉</span>{{ authStore.successMessage }}
-    </div>
-    <div v-if="authStore.error"
-      class="flex items-center gap-2 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium mb-5"
-      role="alert" aria-live="assertive">
-      <span aria-hidden="true">⚠</span>{{ authStore.error }}
+      class="mb-6 flex items-start gap-3 px-5 py-4 rounded-2xl bg-scholar-50 border border-scholar-600/20 text-scholar-700 dark:bg-scholar-900/30 dark:text-scholar-100 animate-reveal"
+      role="status">
+      <span class="text-xl">✉</span>
+      <div class="text-sm font-bold leading-relaxed">
+        Transmission Sent. <br/>
+        <span class="text-xs font-medium opacity-80">Check your inbox for recovery instructions.</span>
+      </div>
     </div>
 
-    <form v-if="!authStore.successMessage" novalidate class="flex flex-col gap-4" @submit.prevent="handleReset">
-      <AuthField v-model="email" label="Email address" type="email" placeholder="you@example.com"
-        autocomplete="email" icon="✉" :required="true" :error="emailError"
-        @input="emailError = ''; authStore.clearError()" />
-      <button type="submit"
-        class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gold-500 text-navy-900 text-[15px] font-bold hover:bg-gold-400 transition-all duration-200 shadow-cta disabled:opacity-60"
-        :disabled="authStore.loading" :aria-busy="authStore.loading" aria-label="Send password reset email">
-        <span v-if="authStore.loading" class="w-4 h-4 border-2 border-navy-900/30 border-t-navy-900 rounded-full animate-spin-slow flex-shrink-0" aria-hidden="true" />
-        {{ authStore.loading ? 'Sending…' : 'Send Reset Link' }}
+    <div v-if="authStore.error"
+      class="mb-6 flex items-center gap-3 px-5 py-4 rounded-2xl bg-error/5 border border-error/20 text-error text-sm font-bold animate-reveal"
+      role="alert">
+      <span>⚠️</span>{{ authStore.error }}
+    </div>
+
+    <form v-if="!authStore.successMessage" @submit.prevent="handleReset" class="space-y-6" novalidate>
+      <AuthField 
+        v-model="email" 
+        label="Scholar Email" 
+        type="email" 
+        placeholder="you@academy.com"
+        icon="✉" 
+        :required="true" 
+        :error="emailError"
+        @input="emailError = ''; authStore.clearError()" 
+      />
+
+      <button type="submit" :disabled="authStore.loading"
+        class="w-full rounded-2xl bg-scholar-600 py-4 font-display text-lg font-black text-white shadow-xl shadow-scholar-600/20 transition-all hover:bg-scholar-700 hover:scale-[1.02] active:scale-100 disabled:opacity-50">
+        <span v-if="authStore.loading" class="flex items-center justify-center gap-2">
+          <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+          Processing...
+        </span>
+        <span v-else>Request Recovery Link</span>
       </button>
     </form>
 
     <template #footer>
-      <NuxtLink to="/auth/login" class="text-sm text-navy-400 no-underline hover:text-gold-500 transition-colors">
-        ← Back to Sign In
+      <NuxtLink to="/auth/login" class="text-sm font-bold text-sage hover:text-scholar-600 transition-colors">
+        ← Return to Portal Entry
       </NuxtLink>
     </template>
   </AuthCard>
@@ -37,7 +54,7 @@ import AuthCard from '~/components/auth/AuthCard.vue'
 import AuthField from '~/components/auth/AuthField.vue'
 
 definePageMeta({ layout: 'auth' })
-useHead({ title: 'Forgot Password — TRIVIA' })
+useHead({ title: 'Recover Credentials — MASTERY' })
 
 const authStore  = useAuthStore()
 authStore.clearError(); authStore.clearSuccess()
@@ -46,8 +63,8 @@ const emailError = ref('')
 
 const handleReset = async () => {
   emailError.value = ''
-  if (!email.value) { emailError.value = 'Email is required.'; return }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) { emailError.value = 'Enter a valid email.'; return }
+  if (!email.value) { emailError.value = 'Email required.'; return }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) { emailError.value = 'Invalid address format.'; return }
   await authStore.forgotPassword(email.value)
 }
 </script>

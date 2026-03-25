@@ -60,7 +60,7 @@ export const useAuthStore = defineStore('auth', {
         // If email confirmation is disabled in Supabase, user is logged in immediately
         if (data.session) {
           this.user = data.user as typeof this.user
-          await navigateTo('/')
+          await navigateTo('/dashboard')
         } else {
           // Email confirmation required
           this.successMessage = `Check your inbox at ${email} to confirm your account.`
@@ -85,7 +85,7 @@ export const useAuthStore = defineStore('auth', {
         })
         if (error) throw error
         this.user = data.user as typeof this.user
-        await navigateTo('/')
+        await navigateTo('/dashboard')
       } catch (err: any) {
         this.error =
           err.message === 'Invalid login credentials'
