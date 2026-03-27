@@ -1,37 +1,61 @@
 <template>
-  <div class="min-h-screen bg-navy-900 flex items-center justify-center px-4" role="main" aria-labelledby="confirm-heading">
-    <div class="w-full max-w-sm bg-navy-700 border border-navy-500 rounded-xl p-12 text-center animate-scale-in">
-      <div v-if="status === 'loading'" class="flex flex-col items-center gap-4" aria-live="polite">
-        <div class="w-11 h-11 border-[3px] border-navy-500 border-t-gold-500 rounded-full animate-spin-slow" aria-hidden="true" />
-        <h1 id="confirm-heading" class="text-xl font-extrabold text-white">Confirming your account…</h1>
-        <p class="text-sm text-navy-400">Please wait a moment.</p>
+  <div class="min-h-screen bg-navy-900 flex items-center justify-center px-4">
+    <div class="text-center flex flex-col items-center gap-4">
+      <span class="text-5xl" aria-hidden="true">
+        {{ isError ? '❌' : isGoogleCallback ? '🔗' : '📧' }}
+      </span>
+      <h1 class="text-2xl font-extrabold text-white">
+        {{ isError ? 'Something went wrong' : isGoogleCallback ? 'Signing you in…' : 'Check your email' }}
+      </h1>
+      <p class="text-sm text-navy-400 max-w-xs">
+        <span v-if="isError">An error occurred. Please try again.</span>
+        <span v-else-if="isGoogleCallback">Completing Google sign-in…</span>
+        <span v-else>We sent a confirmation link to your email. Click it to activate your account.</span>
+      </p>
+
+      <div v-if="isGoogleCallback && !isError" class="flex items-center gap-2 text-xs text-navy-400" role="status">
+        <div class="w-4 h-4 border-2 border-navy-500 border-t-gold-500 rounded-full animate-spin" aria-hidden="true" />
+        Loading your profile…
       </div>
-      <div v-else-if="status === 'success'" class="flex flex-col items-center gap-3" aria-live="assertive">
-        <span class="text-5xl font-black text-green-500" aria-hidden="true">✓</span>
-        <h1 id="confirm-heading" class="text-xl font-extrabold text-white">Account confirmed!</h1>
-        <p class="text-sm text-navy-400">Redirecting you to your dashboard…</p>
-      </div>
-      <div v-else class="flex flex-col items-center gap-3" aria-live="assertive" role="alert">
-        <span class="text-5xl text-red-500" aria-hidden="true">⚠</span>
-        <h1 id="confirm-heading" class="text-xl font-extrabold text-white">Confirmation failed</h1>
-        <p class="text-sm text-navy-400">{{ errorMessage }}</p>
-        <NuxtLink to="/auth/login" class="mt-2 px-6 py-2.5 bg-gold-500 text-navy-900 font-bold rounded-lg no-underline hover:bg-gold-400 transition-all">
-          Back to Sign In
-        </NuxtLink>
-      </div>
+
+      <NuxtLink v-if="isError" to="/auth/login"
+        class="px-5 py-2.5 rounded-lg bg-gold-500 text-navy-900 font-bold text-sm hover:bg-gold-400 transition-all no-underline">
+        Back to Sign In
+      </NuxtLink>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: false })
-useHead({ title: 'Confirming Account — TRIVIA' })
-const status = ref<'loading'|'success'|'error'>('loading')
-const errorMessage = ref('The confirmation link may have expired. Please request a new one.')
+import { useAuthStore } from '~/stores/authStore'
+import { useUserStore  } from '~/stores/userStore'
+
+definePageMeta({ layout: 'auth' })
+useHead({ title: 'Confirming… — TRIVIA' })
+
+const route     = useRoute()
+const authStore = useAuthStore()
+const userStore = useUserStore()
+
+const isGoogleCallback = computed(() => route.query.provider === 'google')
+const isError          = ref(false)
+
 onMounted(async () => {
-  const user = useSupabaseUser()
-  await new Promise(r => setTimeout(r, 1500))
-  if (user.value) { status.value = 'success'; setTimeout(() => navigateTo('/'), 1500) }
-  else status.value = 'error'
+  if (isGoogleCallback.value) {
+    // Cookie was set by FastAPI redirect — just read it and hydrate
+    const match = document.cookie.match(/(?:^|;\s*)auth_token=([^;]+)/)
+    if (match) {
+      const token = decodeURIComponent(match[1])
+      authStore.setToken(token)
+      await userStore.fetchProfile()
+      if (userStore.username) {
+        await navigateTo('/')
+      } else {
+        isError.value = true
+      }
+    } else {
+      isError.value = true
+    }
+  }
 })
 </script>

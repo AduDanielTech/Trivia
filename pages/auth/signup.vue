@@ -35,36 +35,6 @@
         </span>
       </div>
 
-      <!-- Field of study -->
-      <div class="flex flex-col gap-1.5">
-        <label for="field-select" class="text-[13px] font-semibold text-navy-400">
-          Primary field of study <span class="text-red-500 ml-0.5" aria-label="required">*</span>
-        </label>
-        <div class="relative bg-navy-800 border rounded-lg transition-all duration-200"
-          :class="errors.field ? 'border-red-500' : 'border-navy-500 focus-within:border-gold-600 focus-within:shadow-[0_0_0_3px_rgba(255,215,0,0.08)]'">
-          <select id="field-select" v-model="form.field"
-            class="w-full appearance-none bg-transparent border-0 outline-none text-white font-sans text-sm py-3 pl-4 pr-10 cursor-pointer"
-            required :aria-describedby="errors.field ? 'field-err' : undefined" :aria-invalid="!!errors.field"
-            @change="clearFieldError('field')">
-            <option value="" disabled class="bg-navy-700">Choose your exam or subject</option>
-            <optgroup label="Exam Prep" class="bg-navy-700">
-              <option value="JAMB Bundle" class="bg-navy-700">JAMB Bundle (English, Maths, Physics, Chemistry)</option>
-              <option value="WAEC Bundle" class="bg-navy-700">WAEC Bundle (all WAEC subjects)</option>
-            </optgroup>
-            <optgroup label="University" class="bg-navy-700">
-              <option value="Mathematics" class="bg-navy-700">Mathematics</option>
-              <option value="Biology" class="bg-navy-700">Biology</option>
-              <option value="Physics" class="bg-navy-700">Physics</option>
-              <option value="Chemistry" class="bg-navy-700">Chemistry</option>
-            </optgroup>
-          </select>
-          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-navy-400 pointer-events-none text-xs" aria-hidden="true">▾</span>
-        </div>
-        <p v-if="errors.field" id="field-err" class="flex items-center gap-1.5 text-xs text-red-400 font-medium" role="alert">
-          <span aria-hidden="true">⚠</span>{{ errors.field }}
-        </p>
-      </div>
-
       <!-- Terms -->
       <label class="flex items-start gap-3 cursor-pointer">
         <input type="checkbox" v-model="form.agreedToTerms" class="sr-only"
@@ -111,8 +81,8 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '~/stores/auth'
-import AuthCard from '~/components/auth/AuthCard.vue'
+import { useAuthStore } from '~/stores/authStore'
+import AuthCard  from '~/components/auth/AuthCard.vue'
 import AuthField from '~/components/auth/AuthField.vue'
 
 definePageMeta({ layout: 'auth' })
@@ -121,8 +91,8 @@ useHead({ title: 'Create Account — TRIVIA' })
 const authStore = useAuthStore()
 authStore.clearError(); authStore.clearSuccess()
 
-const form   = reactive({ fullName: '', email: '', password: '', field: '', agreedToTerms: false })
-const errors = reactive({ fullName: '', email: '', password: '', field: '', terms: '' })
+const form   = reactive({ fullName: '', email: '', password: '', agreedToTerms: false })
+const errors = reactive({ fullName: '', email: '', password: '', terms: '' })
 
 const clearFieldError = (field: keyof typeof errors) => { (errors as any)[field] = ''; authStore.clearError() }
 
@@ -131,22 +101,26 @@ const passwordStrength = computed(() => {
   if (p.length >= 8) s++; if (/[A-Z]/.test(p)) s++; if (/[0-9]/.test(p)) s++; if (/[^A-Za-z0-9]/.test(p)) s++
   return {
     score: s,
-    label: ['','Weak','Fair','Good','Strong'][s] ?? '',
-    color: ['','#FF4F6D','#FF9500','#FFD700','#00E5A0'][s] ?? '#8A95A8',
+    label: ['', 'Weak', 'Fair', 'Good', 'Strong'][s] ?? '',
+    color: ['', '#FF4F6D', '#FF9500', '#FFD700', '#00E5A0'][s] ?? '#8A95A8',
   }
 })
 
 const validate = () => {
   Object.keys(errors).forEach(k => { (errors as any)[k] = '' }); let ok = true
   if (!form.fullName.trim()) { errors.fullName = 'Full name is required.'; ok = false }
-  if (!form.email) { errors.email = 'Email is required.'; ok = false }
+  if (!form.email)           { errors.email    = 'Email is required.'; ok = false }
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { errors.email = 'Enter a valid email.'; ok = false }
-  if (!form.password) { errors.password = 'Password is required.'; ok = false }
+  if (!form.password)        { errors.password = 'Password is required.'; ok = false }
   else if (form.password.length < 8) { errors.password = 'Must be at least 8 characters.'; ok = false }
-  if (!form.field) { errors.field = 'Please select your field of study.'; ok = false }
-  if (!form.agreedToTerms) { errors.terms = 'You must agree to the Terms to continue.'; ok = false }
+  if (!form.agreedToTerms)   { errors.terms    = 'You must agree to the Terms to continue.'; ok = false }
   return ok
 }
 
-const handleSignup = async () => { if (validate()) await authStore.signUp(form.email, form.password, form.fullName) }
+const handleSignup = async () => {
+  if (validate()) {
+    const username = form.email.split('@')[0]
+    await authStore.signUp(form.email, form.password, form.fullName, username)
+  }
+}
 </script>

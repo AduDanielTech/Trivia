@@ -109,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore, TIERS } from '~/stores/index'
+import { useUserStore, TIERS } from '~/stores/userStore'
 definePageMeta({ layout: 'default' })
 useHead({ title: 'Progress — TRIVIA' })
 const userStore = useUserStore()

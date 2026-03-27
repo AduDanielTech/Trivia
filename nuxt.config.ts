@@ -1,31 +1,20 @@
 export default defineNuxtConfig({
-  compatibilityDate: '2024-11-01',
+  compatibilityDate: '2025-01-01',
   devtools: { enabled: true },
 
   modules: [
     '@pinia/nuxt',
     '@nuxtjs/color-mode',
     '@vueuse/nuxt',
-    '@nuxtjs/supabase',
     '@nuxtjs/tailwindcss',
   ],
-
-  supabase: {
-    redirectOptions: {
-      login: '/auth/login',
-      callback: '/auth/confirm',
-      exclude: ['/auth/login', '/auth/signup', '/auth/forgot-password', '/auth/confirm'],
-    },
-  },
 
   colorMode: {
     classSuffix: '',
     preference: 'dark',
-    fallback: 'dark',
+    fallback:   'dark',
   },
 
-  // main.css still loads: it holds CSS custom properties (design tokens)
-  // that Tailwind classes reference via var(--...) in components
   css: ['~/assets/css/main.css'],
 
   app: {
@@ -34,7 +23,7 @@ export default defineNuxtConfig({
       meta: [
         { name: 'description', content: 'Gamified exam preparation for JAMB, WAEC and University students in Nigeria.' },
         { name: 'theme-color', content: '#0D0F14' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'viewport',    content: 'width=device-width, initial-scale=1' },
       ],
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -50,6 +39,12 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       appName: 'TRIVIA',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000',
     },
+  },
+
+  // Auto-import stores so components don't need explicit imports
+  imports: {
+    dirs: ['stores'],
   },
 })

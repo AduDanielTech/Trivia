@@ -15,7 +15,7 @@
             <span class="text-shimmer">your score?</span>
           </h1>
           <p class="text-sm text-navy-400">
-            {{ userStore.field }} · Level {{ userStore.level }} ·
+            {{ userStore.currentSubject?.toUpperCase() || 'JAMB' }} · Level {{ userStore.level }} ·
             <span class="font-mono text-gold-500">{{ userStore.currentTier.name }}</span>
           </p>
         </div>
@@ -53,7 +53,7 @@
           <div>
             <h2 class="text-lg font-bold text-white tracking-tight mb-1">Start Today's Session</h2>
             <p class="text-xs text-navy-400">
-              {{ userStore.field }} ·
+              {{ userStore.currentSubject?.toUpperCase() || 'JAMB' }} ·
               <span class="font-mono">{{ sessionConfig.questions }} questions</span> ·
               <span class="font-mono">~{{ sessionConfig.minutes }} min</span>
             </p>
@@ -66,12 +66,11 @@
                   ? 'bg-navy-600 text-gold-500'
                   : 'bg-transparent text-navy-400 hover:text-white'"
                 :aria-pressed="sessionConfig.questions === opt.value"
-                :aria-label="`${opt.value} question session`"
                 @click="sessionConfig.questions = opt.value; sessionConfig.minutes = opt.minutes">
                 {{ opt.value }}Q
               </button>
             </div>
-            <NuxtLink to="/quiz"
+            <NuxtLink :to="`/quiz?subject=${userStore.currentSubject || 'jamb'}`"
               class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gold-500 text-navy-900 text-sm font-bold no-underline hover:bg-gold-400 transition-all duration-200 whitespace-nowrap"
               role="button" aria-label="Start your practice session">
               <span aria-hidden="true">▶</span> Start Session
@@ -101,6 +100,9 @@
                     :style="{ width: score + '%', background: getScoreColor(Number(score)) }" />
                 </div>
               </li>
+              <li v-if="Object.keys(userStore.subjectScores).length === 0" class="text-sm text-navy-400">
+                Complete a session to see your scores.
+              </li>
             </ul>
           </section>
 
@@ -108,7 +110,7 @@
           <section class="bg-navy-700 border border-navy-500 rounded-xl p-5 animate-fade-in" style="animation-delay:500ms" aria-labelledby="ach-heading">
             <h2 id="ach-heading" class="text-xs font-bold uppercase tracking-widest text-navy-400 mb-4">Achievements</h2>
             <ul role="list" aria-label="Your achievements" class="flex flex-col gap-0 list-none">
-              <li v-for="a in userStore.achievements" :key="a.id"
+              <li v-for="a in userStore.achievements.slice(0, 6)" :key="a.id"
                 class="flex items-center gap-3 py-2.5 border-b border-navy-600 last:border-0 transition-opacity"
                 :class="a.earned ? 'opacity-100' : 'opacity-50'"
                 :aria-label="`${a.name}: ${a.earned ? 'earned' : 'not yet earned'}`">
@@ -143,22 +145,22 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from '~/stores/index'
+import { useUserStore } from '~/stores/userStore'
 import MillionaireLadder from '~/components/ladder/MillionaireLadder.vue'
-import StreakCard from '~/components/shared/StreakCard.vue'
-import WeakAreaCard from '~/components/shared/WeakAreaCard.vue'
+import StreakCard        from '~/components/shared/StreakCard.vue'
+import WeakAreaCard      from '~/components/shared/WeakAreaCard.vue'
 
 definePageMeta({ layout: 'default' })
 useHead({ title: 'Dashboard — TRIVIA' })
 
-const userStore = useUserStore()
-const firstName = computed(() => userStore.firstName)
-const timeOfDay = computed(() => {
+const userStore  = useUserStore()
+const firstName  = computed(() => userStore.firstName)
+const timeOfDay  = computed(() => {
   const h = new Date().getHours()
   return h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening'
 })
 const sessionConfig = reactive({ questions: 10, minutes: 10 })
-const lengthOptions = [{ value: 5, minutes: 5 }, { value: 10, minutes: 10 }]
+const lengthOptions = [{ value: 5, minutes: 5 }, { value: 10, minutes: 10 }, { value: 20, minutes: 20 }]
 const quickStats = computed(() => [
   { icon: '🔥', value: userStore.streak,                  label: 'Day streak' },
   { icon: '📚', value: userStore.totalSessions,            label: 'Sessions'   },

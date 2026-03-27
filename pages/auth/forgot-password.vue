@@ -32,8 +32,8 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '~/stores/auth'
-import AuthCard from '~/components/auth/AuthCard.vue'
+import { useAuthStore } from '~/stores/authStore'
+import AuthCard  from '~/components/auth/AuthCard.vue'
 import AuthField from '~/components/auth/AuthField.vue'
 
 definePageMeta({ layout: 'auth' })

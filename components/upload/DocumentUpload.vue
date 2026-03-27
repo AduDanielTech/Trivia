@@ -183,7 +183,7 @@
 </template>
 
 <script setup lang="ts">
-import { useUploadStore } from '~/stores/index'
+import { useUploadStore } from '~/stores/userStore'
 
 const uploadStore = useUploadStore()
 const router      = useRouter()

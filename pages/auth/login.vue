@@ -56,8 +56,8 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '~/stores/auth'
-import AuthCard from '~/components/auth/AuthCard.vue'
+import { useAuthStore } from '~/stores/authStore'
+import AuthCard  from '~/components/auth/AuthCard.vue'
 import AuthField from '~/components/auth/AuthField.vue'
 
 definePageMeta({ layout: 'auth' })
@@ -74,7 +74,7 @@ const clearFieldError = (field: keyof typeof errors) => { errors[field] = ''; au
 const validate = () => {
   errors.email = ''; errors.password = ''
   let ok = true
-  if (!form.email) { errors.email = 'Email address is required.'; ok = false }
+  if (!form.email)    { errors.email    = 'Email address is required.'; ok = false }
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { errors.email = 'Please enter a valid email.'; ok = false }
   if (!form.password) { errors.password = 'Password is required.'; ok = false }
   return ok
