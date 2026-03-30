@@ -1,9 +1,7 @@
 /**
- * api.client.ts — replaces plugins/supabase.client.ts
- * 1. Reads auth_token cookie
- * 2. Calls /api/auth/me → hydrates authStore
- * 3. Calls /api/user/profile → hydrates userStore
- * 4. Handles ?token=... from Google OAuth redirect
+ * api.client.ts — client-side app initialization plugin
+ * Reads auth_token cookie → calls /api/auth/me → hydrates stores.
+ * Uses authStore.setToken() and authStore.setUser() which actually exist.
  */
 import { useAuthStore } from '~/stores/authStore'
 import { useUserStore } from '~/stores/userStore'
@@ -12,6 +10,7 @@ export default defineNuxtPlugin(async () => {
   const authStore = useAuthStore()
   const userStore = useUserStore()
   const route     = useRoute()
+  const config    = useRuntimeConfig()
 
   // Handle Google OAuth callback: /auth/confirm?token=xxx
   const urlToken = route.query.token as string | undefined
@@ -19,21 +18,29 @@ export default defineNuxtPlugin(async () => {
     const cookie = useCookie('auth_token', { maxAge: 60 * 60 * 24 * 7, path: '/' })
     cookie.value = urlToken
     await navigateTo(route.path, { replace: true })
+    return
   }
 
-  // Hydrate from existing cookie
+  // Read JWT from cookie
   const cookie = useCookie<string | null>('auth_token')
   if (!cookie.value) return
 
-  const ok = await authStore.initFromToken()
-  if (!ok) return
+  // Set token immediately so isAuthenticated is reactive
+  authStore.setToken(cookie.value)
 
-  await userStore.fetchProfile()
-
-  if (authStore.user) {
-    userStore.syncFromAuth(
-      authStore.user.full_name || authStore.user.username || '',
-      authStore.user.email || ''
-    )
+  try {
+    const me = await $fetch<any>(`${config.public.apiBase}/api/auth/me`, {
+      headers:     { Authorization: `Bearer ${cookie.value}` },
+      credentials: 'include',
+    })
+    authStore.setUser(me)
+    await userStore.fetchProfile()
+    if (me) userStore.syncFromAuth(me.full_name || me.username || '', me.email || '')
+  } catch (err) {
+    console.warn('[api.client] Auth hydration failed — clearing session')
+    authStore.setToken(null)
+    authStore.setUser(null)
+    const c = useCookie('auth_token')
+    c.value  = null
   }
 })

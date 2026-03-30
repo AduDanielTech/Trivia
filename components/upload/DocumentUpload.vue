@@ -130,6 +130,22 @@
       <span aria-hidden="true">⚠</span>{{ uploadStore.error }}
     </div>
 
+
+    <!-- Subject selector — shown when files are ready but not yet processed -->
+    <div v-if="uploadStore.files.length > 0 && !uploadStore.isProcessing && !isDone"
+      class="bg-navy-800 border border-navy-600 rounded-xl p-4 flex flex-col gap-3">
+      <p class="text-[11px] font-bold uppercase tracking-widest text-navy-400">
+        Which subject are these notes for?
+      </p>
+      <select v-model="selectedSubject"
+        class="w-full bg-navy-700 border border-navy-500 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 transition"
+        aria-label="Select subject for uploaded document">
+        <option v-for="opt in subjectOptions" :key="opt.value" :value="opt.value">
+          {{ opt.label }}
+        </option>
+      </select>
+    </div>
+
     <!-- Action buttons -->
     <div class="flex gap-3 flex-wrap">
       <button v-if="uploadStore.files.length > 0 && !uploadStore.isProcessing && !isDone"
@@ -183,13 +199,26 @@
 </template>
 
 <script setup lang="ts">
-import { useUploadStore } from '~/stores/userStore'
+import { useUploadStore } from '~/stores/uploadStore'
 
 const uploadStore = useUploadStore()
 const router      = useRouter()
 const sound       = useSound()
 
 const fileInput  = ref<HTMLInputElement | null>(null)
+const selectedSubject = ref('jamb')
+const selectedField   = ref('exam_prep')
+
+const subjectOptions = [
+  { value: 'jamb',         label: 'JAMB' },
+  { value: 'waec',         label: 'WAEC' },
+  { value: 'programming',  label: 'Programming' },
+  { value: 'mathematics',  label: 'Mathematics' },
+  { value: 'physics',      label: 'Physics' },
+  { value: 'chemistry',    label: 'Chemistry' },
+  { value: 'biology',      label: 'Biology' },
+  { value: 'general',      label: 'General' },
+]
 const isDragging = ref(false)
 const dragCounter = ref(0)
 
@@ -217,7 +246,15 @@ const handleDrop = (e: DragEvent) => {
   if (e.dataTransfer?.files) Array.from(e.dataTransfer.files).forEach(f => { uploadStore.addFile(f); sound.playUpload() })
 }
 
-const processFiles = async () => { sound.playClick(); await uploadStore.processFiles(); sound.playLevelUp() }
+const processFiles = async () => {
+  sound.playClick()
+  await uploadStore.processFiles(
+    selectedSubject.value || 'general',
+    selectedField.value   || 'exam_prep',
+    uploadStore.files[0]?.name?.replace(/\.[^/.]+$/, '') || 'My Document'
+  )
+  sound.playLevelUp()
+}
 const startDocQuiz = () => { sound.playClick(); router.push('/quiz?mode=documents') }
 const resetUpload  = () => uploadStore.$reset()
 
