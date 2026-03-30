@@ -47,8 +47,8 @@
 
 
 <script setup lang="ts">
-import { useAuthStore } from '~/stores/auth'
-import AuthCard from '~/components/auth/AuthCard.vue'
+import { useAuthStore } from '~/stores/authStore'
+import AuthCard  from '~/components/auth/AuthCard.vue'
 import AuthField from '~/components/auth/AuthField.vue'
 
 definePageMeta({ layout: 'auth' })
@@ -61,9 +61,17 @@ const errors = reactive({ email: '', password: '' })
 const clearFieldError = (f: keyof typeof errors) => { errors[f] = ''; authStore.clearError() }
 
 const validate = () => {
+<<<<<<< HEAD
   let ok = true; errors.email = ''; errors.password = ''
   if (!form.email) { errors.email = 'Email required.'; ok = false }
   if (!form.password) { errors.password = 'Security code required.'; ok = false }
+=======
+  errors.email = ''; errors.password = ''
+  let ok = true
+  if (!form.email)    { errors.email    = 'Email address is required.'; ok = false }
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { errors.email = 'Please enter a valid email.'; ok = false }
+  if (!form.password) { errors.password = 'Password is required.'; ok = false }
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
   return ok
 }
 

@@ -7,6 +7,7 @@
       Skip to main content
     </a>
 
+<<<<<<< HEAD
     <!-- Landing nav (marketing) -->
     <header class="sticky top-0 z-40 border-b border-paper-200/80 bg-paper-50/80 backdrop-blur dark:border-white/10 dark:bg-ink-900/70">
       <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 py-4">
@@ -55,6 +56,23 @@
               Get started
             </NuxtLink>
           </template>
+=======
+      <!-- Hero -->
+      <header class="flex items-center justify-between gap-6 animate-fade-in" role="banner" aria-label="Welcome header">
+        <div>
+          <p class="text-xs text-navy-400 flex items-center gap-1.5 mb-3">
+            <span aria-hidden="true">👋</span>
+            Good {{ timeOfDay }}, <span class="text-white font-semibold">{{ firstName }}</span>
+          </p>
+          <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight mb-3">
+            Ready to level up<br />
+            <span class="text-shimmer">your score?</span>
+          </h1>
+          <p class="text-sm text-navy-400">
+            {{ userStore.currentSubject?.toUpperCase() || 'JAMB' }} · Level {{ userStore.level }} ·
+            <span class="font-mono text-gold-500">{{ userStore.currentTier.name }}</span>
+          </p>
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
         </div>
       </div>
     </header>
@@ -202,6 +220,7 @@
       <section id="features" class="mt-14" aria-labelledby="features-title">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
+<<<<<<< HEAD
             <h2 id="features-title" v-reveal class="font-display text-3xl font-extrabold tracking-tight text-paper-900 dark:text-white">Features students actually use daily</h2>
             <p v-reveal="80" class="mt-2 max-w-prose text-base font-semibold leading-relaxed text-paper-800/80 dark:text-paper-50/80">
               Every feature matches a real journey: onboarding, daily practice, weak‑area fixes, progress tracking, and social comparison.
@@ -370,21 +389,120 @@
               class="inline-flex h-12 items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-6 text-base font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-white/15 focus:outline-none focus:ring-4 focus:ring-white/30"
             >
               Create free account
+=======
+            <h2 class="text-lg font-bold text-white tracking-tight mb-1">Start Today's Session</h2>
+            <p class="text-xs text-navy-400">
+              {{ userStore.currentSubject?.toUpperCase() || 'JAMB' }} ·
+              <span class="font-mono">{{ sessionConfig.questions }} questions</span> ·
+              <span class="font-mono">~{{ sessionConfig.minutes }} min</span>
+            </p>
+          </div>
+          <div class="flex items-center gap-3 flex-wrap">
+            <div class="flex bg-navy-800 border border-navy-500 rounded-lg p-1 gap-1" role="group" aria-label="Session length">
+              <button v-for="opt in lengthOptions" :key="opt.value"
+                class="px-3 py-1.5 rounded-md text-xs font-bold font-sans transition-all duration-150"
+                :class="sessionConfig.questions === opt.value
+                  ? 'bg-navy-600 text-gold-500'
+                  : 'bg-transparent text-navy-400 hover:text-white'"
+                :aria-pressed="sessionConfig.questions === opt.value"
+                @click="sessionConfig.questions = opt.value; sessionConfig.minutes = opt.minutes">
+                {{ opt.value }}Q
+              </button>
+            </div>
+            <NuxtLink :to="`/quiz?subject=${userStore.currentSubject || 'jamb'}`"
+              class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gold-500 text-navy-900 text-sm font-bold no-underline hover:bg-gold-400 transition-all duration-200 whitespace-nowrap"
+              role="button" aria-label="Start your practice session">
+              <span aria-hidden="true">▶</span> Start Session
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
             </NuxtLink>
           </div>
         </div>
       </section>
+<<<<<<< HEAD
     </main>
+=======
+
+      <!-- Main grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 items-start">
+        <!-- Left -->
+        <div class="flex flex-col gap-5">
+          <div class="animate-fade-in" style="animation-delay:300ms"><WeakAreaCard /></div>
+
+          <!-- Subject scores -->
+          <section class="bg-navy-700 border border-navy-500 rounded-xl p-5 animate-fade-in" style="animation-delay:400ms" aria-labelledby="subjects-heading">
+            <h2 id="subjects-heading" class="text-xs font-bold uppercase tracking-widest text-navy-400 mb-4">Subject Scores</h2>
+            <ul role="list" aria-label="Scores by subject" class="flex flex-col gap-4 list-none">
+              <li v-for="(score, subject) in userStore.subjectScores" :key="subject" :aria-label="`${subject}: ${score}%`">
+                <div class="flex justify-between items-center mb-1.5">
+                  <span class="text-sm font-semibold text-white">{{ subject }}</span>
+                  <span class="font-mono text-sm font-bold" :style="{ color: getScoreColor(Number(score)) }">{{ score }}%</span>
+                </div>
+                <div class="h-1.5 bg-navy-600 rounded-full overflow-hidden"
+                  role="progressbar" :aria-valuenow="Number(score)" aria-valuemin="0" aria-valuemax="100" aria-hidden="true">
+                  <div class="h-full rounded-full transition-all duration-700"
+                    :style="{ width: score + '%', background: getScoreColor(Number(score)) }" />
+                </div>
+              </li>
+              <li v-if="Object.keys(userStore.subjectScores).length === 0" class="text-sm text-navy-400">
+                Complete a session to see your scores.
+              </li>
+            </ul>
+          </section>
+
+          <!-- Achievements -->
+          <section class="bg-navy-700 border border-navy-500 rounded-xl p-5 animate-fade-in" style="animation-delay:500ms" aria-labelledby="ach-heading">
+            <h2 id="ach-heading" class="text-xs font-bold uppercase tracking-widest text-navy-400 mb-4">Achievements</h2>
+            <ul role="list" aria-label="Your achievements" class="flex flex-col gap-0 list-none">
+              <li v-for="a in userStore.achievements.slice(0, 6)" :key="a.id"
+                class="flex items-center gap-3 py-2.5 border-b border-navy-600 last:border-0 transition-opacity"
+                :class="a.earned ? 'opacity-100' : 'opacity-50'"
+                :aria-label="`${a.name}: ${a.earned ? 'earned' : 'not yet earned'}`">
+                <span class="text-xl" aria-hidden="true">{{ a.icon }}</span>
+                <span class="flex-1 text-sm font-semibold text-white">{{ a.name }}</span>
+                <span v-if="a.earned" class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wide bg-green-500/10 text-green-500 border border-green-500/20" aria-hidden="true">Earned</span>
+                <span v-else class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wide bg-navy-600 text-navy-400 border border-navy-500" aria-hidden="true">Locked</span>
+              </li>
+            </ul>
+          </section>
+        </div>
+
+        <!-- Right sidebar -->
+        <div class="flex flex-col gap-5">
+          <div class="animate-fade-in" style="animation-delay:200ms"><MillionaireLadder /></div>
+          <div class="animate-fade-in" style="animation-delay:300ms"><StreakCard /></div>
+
+          <NuxtLink to="/upload"
+            class="flex items-center gap-3 px-5 py-4 bg-navy-700 border border-dashed border-navy-400 rounded-xl no-underline hover:border-gold-600 hover:bg-gold-500/[0.04] transition-all duration-200 group animate-fade-in"
+            style="animation-delay:400ms" aria-label="Upload documents to generate quiz questions">
+            <span class="text-2xl" aria-hidden="true">📄</span>
+            <div class="flex-1">
+              <div class="text-sm font-semibold text-white mb-0.5">Upload Study Notes</div>
+              <div class="text-xs text-navy-400">Generate questions from your documents</div>
+            </div>
+            <span class="text-navy-400 group-hover:text-gold-500 group-hover:translate-x-0.5 transition-all duration-150" aria-hidden="true">→</span>
+          </NuxtLink>
+        </div>
+      </div>
+    </div>
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
   </div>
 </template>
 
 <script setup lang="ts">
+<<<<<<< HEAD
 import { onBeforeUnmount, onMounted, ref, computed } from 'vue'
 import { useAuthStore } from '~/stores/auth'
+=======
+import { useUserStore } from '~/stores/userStore'
+import MillionaireLadder from '~/components/ladder/MillionaireLadder.vue'
+import StreakCard        from '~/components/shared/StreakCard.vue'
+import WeakAreaCard      from '~/components/shared/WeakAreaCard.vue'
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
 
 definePageMeta({ layout: false })
 useHead({ title: 'TRIVIA — 5-minute AI exam practice' })
 
+<<<<<<< HEAD
 const colorMode = useColorMode()
 const router = useRouter()
 const authStore = useAuthStore()
@@ -482,6 +600,23 @@ onBeforeUnmount(() => {
   stepObserver?.disconnect()
   stepObserver = null
 })
+=======
+const userStore  = useUserStore()
+const firstName  = computed(() => userStore.firstName)
+const timeOfDay  = computed(() => {
+  const h = new Date().getHours()
+  return h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening'
+})
+const sessionConfig = reactive({ questions: 10, minutes: 10 })
+const lengthOptions = [{ value: 5, minutes: 5 }, { value: 10, minutes: 10 }, { value: 20, minutes: 20 }]
+const quickStats = computed(() => [
+  { icon: '🔥', value: userStore.streak,                  label: 'Day streak' },
+  { icon: '📚', value: userStore.totalSessions,            label: 'Sessions'   },
+  { icon: '❓', value: userStore.totalQuestionsAnswered,   label: 'Questions'  },
+  { icon: '⭐', value: `${userStore.averageScore}%`,       label: 'Avg score'  },
+])
+const getScoreColor = (s: number) => s < 50 ? '#FF4F6D' : s < 70 ? '#FF9500' : '#00E5A0'
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
 </script>
 
 <style scoped>

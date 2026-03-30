@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from '~/stores/index'
+import { useUserStore } from '~/stores/userStore'
 const userStore = useUserStore()
 const router = useRouter()
 </script>

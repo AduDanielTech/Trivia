@@ -1,18 +1,22 @@
 export default defineNuxtConfig({
+<<<<<<< HEAD
   // Workaround for Windows setups where creating `.nuxt/dev` can fail.
   // Keeping this out of a dot-directory also plays nicer with some AV/sync tools.
   buildDir: 'nuxt-build',
   compatibilityDate: '2024-11-01',
+=======
+  compatibilityDate: '2025-01-01',
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
   devtools: { enabled: true },
 
   modules: [
     '@pinia/nuxt',
     '@nuxtjs/color-mode',
     '@vueuse/nuxt',
-    '@nuxtjs/supabase',
     '@nuxtjs/tailwindcss',
   ],
 
+<<<<<<< HEAD
   supabase: {
     redirectOptions: {
       login: '/auth/login',
@@ -23,14 +27,14 @@ export default defineNuxtConfig({
     },
   },
 
+=======
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
   colorMode: {
     classSuffix: '',
     preference: 'dark',
-    fallback: 'dark',
+    fallback:   'dark',
   },
 
-  // main.css still loads: it holds CSS custom properties (design tokens)
-  // that Tailwind classes reference via var(--...) in components
   css: ['~/assets/css/main.css'],
 
   app: {
@@ -39,7 +43,7 @@ export default defineNuxtConfig({
       meta: [
         { name: 'description', content: 'Gamified exam preparation for JAMB, WAEC and University students in Nigeria.' },
         { name: 'theme-color', content: '#0D0F14' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'viewport',    content: 'width=device-width, initial-scale=1' },
       ],
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -55,6 +59,12 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       appName: 'TRIVIA',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000',
     },
+  },
+
+  // Auto-import stores so components don't need explicit imports
+  imports: {
+    dirs: ['stores'],
   },
 })

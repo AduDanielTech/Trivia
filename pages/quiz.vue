@@ -21,13 +21,23 @@
               </p>
             </header>
 
+<<<<<<< HEAD
             <!-- Field Snapshot -->
             <div class="flex items-center gap-4 rounded-2xl bg-paper-50 px-5 py-4 dark:bg-white/5">
               <span class="text-3xl">🎓</span>
               <div>
                 <p class="text-[10px] font-black uppercase tracking-widest text-sage">Subject</p>
                 <p class="font-display text-lg font-bold text-scholar-700 dark:text-scholar-100">{{ userStore.field }}</p>
+=======
+            <div class="flex items-center gap-3 px-4 py-3.5 bg-navy-600 border border-navy-500 rounded-lg"
+              role="status" :aria-label="`Current field: ${userStore.currentSubject}`">
+              <span aria-hidden="true" class="text-2xl flex-shrink-0">🎓</span>
+              <div>
+                <div class="text-[10px] uppercase tracking-widest text-navy-400 font-semibold">Field of study</div>
+                <div class="text-sm font-bold text-gold-500 mt-0.5">{{ userStore.currentSubject?.toUpperCase() || 'JAMB' }}</div>
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
               </div>
+              <NuxtLink to="/fields" class="ml-auto text-xs text-navy-400 no-underline hover:text-gold-500 transition-colors">Change</NuxtLink>
             </div>
 
             <div class="space-y-6">
@@ -59,6 +69,7 @@
                   class="group flex w-full items-center justify-between rounded-2xl border-2 border-paper-200 bg-white px-6 py-4 transition-all hover:border-scholar-600/50 dark:border-white/10 dark:bg-white/5"
                   :aria-pressed="sound.isEnabled.value"
                 >
+<<<<<<< HEAD
                   <div class="flex items-center gap-3">
                     <span class="text-xl">{{ sound.isEnabled.value ? '🔊' : '🔇' }}</span>
                     <span class="font-bold text-sm">{{ sound.isEnabled.value ? 'Effects Enabled' : 'Muted Mode' }}</span>
@@ -72,10 +83,17 @@
                       class="absolute top-1 h-4 w-4 rounded-full bg-white transition-transform shadow-sm"
                     />
                   </div>
+=======
+                  <span aria-hidden="true" class="text-lg flex-shrink-0">{{ sound.isEnabled.value ? '🔊' : '🔇' }}</span>
+                  <span>{{ sound.isEnabled.value ? 'Sound On' : 'Sound Off' }}</span>
+                  <span class="w-8 h-[18px] rounded-full relative transition-colors duration-200 ml-auto flex-shrink-0" aria-hidden="true"
+                    :class="sound.isEnabled.value ? 'bg-green-600' : 'bg-navy-500'" />
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
                 </button>
               </div>
             </div>
 
+<<<<<<< HEAD
             <!-- Start Logic -->
             <div class="pt-4">
               <div v-if="loadingQuestions" class="flex items-center justify-center gap-3 text-sm font-bold text-scholar-600 py-4">
@@ -89,10 +107,33 @@
               >
                 Begin Session
               </button>
+=======
+            <div v-if="gameStore.loading" class="flex items-center justify-center gap-2.5 text-sm text-navy-400 py-1" aria-live="polite" role="status">
+              <div class="w-4 h-4 border-2 border-navy-500 border-t-gold-500 rounded-full animate-spin-slow flex-shrink-0" aria-hidden="true" />
+              <span>Loading questions…</span>
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
             </div>
+            <p v-if="gameStore.error" class="text-xs text-red-400 text-center" role="alert">{{ gameStore.error }}</p>
 
+<<<<<<< HEAD
             <p class="text-center text-[10px] font-black uppercase tracking-widest text-sage opacity-60">
               {{ questionsSource === 'supabase' ? 'Cloud Sync Enabled' : 'Offline Bank Active' }}
+=======
+            <button
+              v-if="!gameStore.loading"
+              class="btn btn-gold lobby-start-btn"
+              ref="startBtnRef"
+              aria-label="Start your practice session"
+              @click="startSession"
+            >
+              <span aria-hidden="true">▶</span>
+              Start Session
+            </button>
+
+            <p class="flex items-center justify-center gap-1.5 text-[11px] text-navy-400" aria-live="polite">
+              <span aria-hidden="true">⚡</span>
+              Live questions from database
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
             </p>
           </div>
         </section>
@@ -102,6 +143,7 @@
           <QuizCard
             v-if="currentQuestion"
             :question="currentQuestion"
+            :session-id="gameStore.sessionId"
             @answered="handleAnswered"
             @next="handleNext"
             @complete="handleComplete"
@@ -116,6 +158,7 @@
               {{ scorePercent >= 80 ? '🏆' : scorePercent >= 60 ? '✨' : '📖' }}
             </div>
 
+<<<<<<< HEAD
             <header class="space-y-2">
               <h2 id="results-heading" class="font-display text-7xl font-black tracking-tighter text-scholar-700 dark:text-scholar-100">
                 {{ scorePercent }}%
@@ -140,10 +183,64 @@
               <div v-if="savedToDb" class="flex items-center gap-2 text-xs font-bold text-scholar-600">
                 <span class="h-1.5 w-1.5 rounded-full bg-scholar-600 animate-pulse" />
                 Synced to Cloud
+=======
+            <h1 id="results-heading" class="text-7xl font-extrabold tracking-tight leading-none"
+              :aria-label="`Session complete. You scored ${sessionStore.score} out of ${sessionStore.totalQuestions}, ${scorePercent} percent.`">
+              <span class="text-shimmer">{{ scorePercent }}%</span>
+            </h1>
+
+            <p class="font-mono text-base text-navy-400">{{ sessionStore.score }} / {{ sessionStore.totalQuestions }} correct</p>
+            <p class="text-sm text-navy-400 leading-relaxed max-w-xs" role="status">{{ resultMessage }}</p>
+
+            <!-- XP earned from server -->
+            <div
+              class="flex items-center gap-2 px-5 py-2 rounded-full bg-gold-500/[0.08] border border-gold-500/20 text-sm font-bold text-gold-500"
+              role="status"
+            >
+              <span aria-hidden="true">⬡</span>
+              <span class="font-mono">+{{ completionResult?.xp_earned ?? sessionStore.sessionXP }}</span>
+              <span>XP earned</span>
+            </div>
+
+            <!-- Tier up announcement -->
+            <div v-if="completionResult?.new_tier && completionResult.new_tier !== userStore.currentTier.name"
+              class="flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/30 text-xs font-bold text-yellow-400"
+              role="status" aria-live="polite">
+              🎉 Tier Up — Welcome to {{ completionResult.new_tier }}!
+            </div>
+
+            <!-- Newly unlocked achievements -->
+            <div v-if="completionResult?.newly_unlocked?.length" class="flex flex-col gap-1 w-full">
+              <div v-for="ach in completionResult.newly_unlocked" :key="ach.id"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/20 text-xs font-semibold text-green-400"
+                role="status">
+                {{ ach.icon }} Achievement Unlocked: {{ ach.name }}
+              </div>
+            </div>
+
+            <!-- Save indicator -->
+            <div v-if="sessionStore.completing" class="flex items-center gap-1.5 text-xs text-navy-400" role="status">
+              <div class="w-3 h-3 border-2 border-navy-500 border-t-gold-500 rounded-full animate-spin" aria-hidden="true" />
+              Saving to your account…
+            </div>
+            <div v-else-if="savedToDb" class="flex items-center gap-1.5 text-xs text-green-400" role="status">
+              <span aria-hidden="true">☁</span> Progress saved to your account
+            </div>
+            <div v-else-if="sessionStore.completionError" class="flex items-center gap-1.5 text-xs text-navy-400" role="status">
+              <span aria-hidden="true">⚠</span> {{ sessionStore.completionError }}
+            </div>
+
+            <!-- Score bar -->
+            <div class="w-full" role="progressbar" :aria-valuenow="scorePercent" aria-valuemin="0" aria-valuemax="100">
+              <div class="h-2.5 bg-navy-600 rounded-full overflow-hidden w-full">
+                <div class="h-full rounded-full transition-all duration-700"
+                  :style="{ width: scorePercent + '%', background: scorePercent >= 70 ? '#00E5A0' : scorePercent >= 50 ? '#FF9500' : '#FF4F6D' }" />
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
               </div>
               <div v-else class="text-xs font-bold text-sage">Saving session...</div>
             </div>
 
+<<<<<<< HEAD
             <!-- Progress Bar -->
             <div class="h-3 w-full overflow-hidden rounded-full bg-paper-100 dark:bg-white/10">
               <div 
@@ -165,6 +262,15 @@
                 to="/dashboard" 
                 class="rounded-2xl border-2 border-paper-200 py-4 font-bold text-paper-900 hover:bg-paper-50 dark:border-white/10 dark:text-white dark:hover:bg-white/5 transition-all"
               >
+=======
+            <div class="flex gap-3 w-full">
+              <button class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg bg-gold-500 text-navy-900 font-bold text-sm hover:bg-gold-400 transition-all duration-200"
+                aria-label="Start another session" @click="restartSession">
+                Play Again
+              </button>
+              <NuxtLink to="/" class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border border-navy-500 bg-transparent text-sm font-semibold text-white hover:bg-navy-600 hover:border-navy-400 transition-all duration-200"
+                role="button" aria-label="Go to dashboard">
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
                 Dashboard
               </NuxtLink>
             </div>
@@ -177,39 +283,50 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore, useSessionStore } from '~/stores/index'
-import { MOCK_QUESTIONS } from '~/data/questions'
+import { useUserStore    } from '~/stores/userStore'
+import { useSessionStore } from '~/stores/sessionStore'
+import { useGameStore    } from '~/stores/gameStore'
 import QuizCard from '~/components/quiz/QuizCard.vue'
 
 definePageMeta({ layout: 'default' })
 useHead({ title: 'Practice — MASTERY' })
 
-const route = useRoute()
-const userStore = useUserStore()
+const route        = useRoute()
+const userStore    = useUserStore()
 const sessionStore = useSessionStore()
-const sound = useSound()
-const announcer = useAnnouncer()
-const { saveSession, fetchQuestions } = useSessionPersist()
+const gameStore    = useGameStore()
+const sound        = useSound()
+const announcer    = useAnnouncer()
 
+<<<<<<< HEAD
 const phase = ref<'lobby' | 'quiz' | 'results'>('lobby')
 const selectedLength = ref<5 | 10>(10)
 const questions = ref<any[]>([])
+=======
+const startBtnRef      = ref<HTMLElement | null>(null)
+const phase            = ref<'lobby' | 'quiz' | 'results'>('lobby')
+const selectedLength   = ref(10)
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
 const currentQuestionIndex = ref(0)
-const loadingQuestions = ref(false)
-const questionsSource = ref<'supabase' | 'local'>('local')
 const sessionStartTime = ref(0)
+<<<<<<< HEAD
 const savedToDb = ref(false)
 const saveError = ref(false)
 
 const answerLog = ref<any[]>([])
+=======
+const savedToDb        = ref(false)
+const completionResult = ref<any>(null)
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
 
 const lengthOptions = [
   { value: 5, minutes: 5 },
   { value: 10, minutes: 10 },
+  { value: 20, minutes: 20 },
 ]
 
-const currentQuestion = computed(() => questions.value[currentQuestionIndex.value] || null)
-const scorePercent = computed(() => sessionStore.scorePercent)
+const currentQuestion = computed(() => gameStore.questions[currentQuestionIndex.value] || null)
+const scorePercent    = computed(() => sessionStore.scorePercent)
 
 const resultMessage = computed(() => {
   if (scorePercent.value >= 80) return 'Exceptional work. You are mastering this field.'
@@ -217,6 +334,7 @@ const resultMessage = computed(() => {
   return 'Consistency is the key. Review your mistakes and try again.'
 })
 
+<<<<<<< HEAD
 const loadQuestions = async () => {
   loadingQuestions.value = true
   const subject = (route.query.subject as string) || userStore.field
@@ -258,9 +376,46 @@ const handleAnswered = (correct: boolean) => {
 }
 
 const handleNext = () => currentQuestionIndex.value++
+=======
+// Pre-load questions when component mounts
+onMounted(loadQuestions)
+watch(selectedLength, loadQuestions)
 
-const handleComplete = async () => {
+async function loadQuestions() {
+  const subject = (route.query.subject as string) || userStore.currentSubject || 'jamb'
+  await gameStore.startSession(subject, selectedLength.value)
+}
+
+// ── Session flow ──────────────────────────────────────────────────────────
+async function startSession() {
+  if (!gameStore.hasQuestions) {
+    await loadQuestions()
+    if (!gameStore.hasQuestions) return
+  }
+  sound.playClick?.()
+  sessionStore.reset()
+  sessionStore.totalQuestions = gameStore.questions.length
+  sessionStore.subject        = userStore.currentSubject || 'jamb'
+  currentQuestionIndex.value  = 0
+  sessionStartTime.value      = Date.now()
+  phase.value = 'quiz'
+  announcer.announce?.(`Session started. ${gameStore.questions.length} questions. Good luck!`)
+}
+
+// AFTER
+function handleAnswered(_correct: boolean) {
+  // Answer submission is now handled inside QuizCard directly,
+  // which waits for the backend's correct_index before revealing the result.
+}
+
+function handleNext() {
+  currentQuestionIndex.value++
+}
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
+
+async function handleComplete() {
   const durationSeconds = Math.round((Date.now() - sessionStartTime.value) / 1000)
+<<<<<<< HEAD
   userStore.completeSession(sessionStore.score, sessionStore.totalQuestions, sessionStore.subject, sessionStore.sessionXP)
   phase.value = 'results'
   
@@ -274,15 +429,39 @@ const handleComplete = async () => {
     answers: answerLog.value,
   })
   if (sessionId) savedToDb.value = true
+=======
+  phase.value = 'results'
+  sound.playLevelUp?.()
+  announcer.announceScore?.(sessionStore.score, sessionStore.totalQuestions)
+
+  savedToDb.value        = false
+  completionResult.value = null
+
+  // Call the PostgreSQL complete_session() function via sessionStore
+  const result = await sessionStore.finishSession(durationSeconds)
+  if (result?.success) {
+    savedToDb.value        = true
+    completionResult.value = result
+  }
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
 }
 
-const restartSession = async () => {
+async function restartSession() {
   phase.value = 'lobby'
+<<<<<<< HEAD
+=======
+  sessionStore.reset()
+  gameStore.reset()
+  currentQuestionIndex.value = 0
+  savedToDb.value            = false
+  completionResult.value     = null
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
   await loadQuestions()
 }
 </script>
 
 <style scoped>
+<<<<<<< HEAD
 .font-display { font-family: 'Lexend', sans-serif; }
 
 .screen-fade-enter-active, .screen-fade-leave-active { 
@@ -308,3 +487,16 @@ const restartSession = async () => {
 }
 .animate-bounce-slow { animation: bounce-slow 3s ease-in-out infinite; }
 </style>
+=======
+.text-shimmer {
+  background: linear-gradient(90deg,#D4B000 0%,#FFEA66 40%,#D4B000 60%,#FFEA66 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
+.screen-fade-enter-active, .screen-fade-leave-active { transition: all 0.35s cubic-bezier(0.4,0,0.2,1); }
+.screen-fade-enter-from, .screen-fade-leave-to { opacity: 0; transform: translateY(12px); }
+</style>
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7

@@ -112,8 +112,12 @@
 </template>
 
 <script setup lang="ts">
+<<<<<<< HEAD
 import { useUserStore, TIERS } from '~/stores/index'
 
+=======
+import { useUserStore, TIERS } from '~/stores/userStore'
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
 definePageMeta({ layout: 'default' })
 useHead({ title: 'Analytics — MASTERY' })
 

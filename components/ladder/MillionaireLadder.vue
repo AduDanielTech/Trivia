@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore, TIERS } from '~/stores/index'
+import { useUserStore, TIERS } from '~/stores/userStore'
 
 const userStore = useUserStore()
 const currentTier = computed(() => userStore.currentTier)

@@ -142,6 +142,7 @@
 </template>
 
 <script setup lang="ts">
+<<<<<<< HEAD
 const colorMode = useColorMode()
 	const route = useRoute()
 	const userStore = useUserStore()
@@ -151,6 +152,10 @@ const colorMode = useColorMode()
 	const announcer = useAnnouncer()
 	const menuOpen = ref(false)
 	const avatarWrap = ref<HTMLElement | null>(null)
+=======
+import { useUserStore } from '~/stores/userStore'
+import { useAuthStore } from '~/stores/authStore'
+>>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
 
 	const isAuthed = computed(() => !!supabaseUser.value || authStore.isAuthenticated)
 
