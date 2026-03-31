@@ -1,10 +1,10 @@
 <template>
-  <div class="app-shell" :class="colorMode.value">
+  <div class="app-shell" :class="currentColorMode">
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
     <!-- ARIA live regions -->
-    <div aria-live="polite" aria-atomic="true" class="sr-only" role="status">{{ announcer.politeMsg.value }}</div>
-    <div aria-live="assertive" aria-atomic="true" class="sr-only" role="alert">{{ announcer.assertiveMsg.value }}</div>
+    <div aria-live="polite" aria-atomic="true" class="sr-only" role="status">{{ announcer.politeMsg }}</div>
+    <div aria-live="assertive" aria-atomic="true" class="sr-only" role="alert">{{ announcer.assertiveMsg }}</div>
     <div aria-live="polite" aria-atomic="true" class="sr-only" role="status">{{ userStore.liveAnnouncement }}</div>
 
     <!-- Header -->
@@ -37,10 +37,10 @@
           <button
             class="icon-btn"
             @click="toggleColorMode"
-            :aria-label="`Switch to ${colorMode.value === 'dark' ? 'light' : 'dark'} mode`"
+            :aria-label="`Switch to ${currentColorMode === 'dark' ? 'light' : 'dark'} mode`"
           >
             <Transition name="icon-swap" mode="out-in">
-              <span v-if="colorMode.value === 'dark'" key="sun">☀️</span>
+              <span v-if="currentColorMode === 'dark'" key="sun">☀️</span>
               <span v-else key="moon">🌙</span>
             </Transition>
           </button>
@@ -48,11 +48,11 @@
           <!-- Sound -->
           <button
             class="icon-btn"
-            :aria-label="sound.isEnabled.value ? 'Mute sound' : 'Enable sound'"
-            :aria-pressed="sound.isEnabled.value"
+            :aria-label="sound.isEnabled ? 'Mute sound' : 'Enable sound'"
+            :aria-pressed="sound.isEnabled"
             @click="sound.toggle"
           >
-            <span aria-hidden="true">{{ sound.isEnabled.value ? '🔊' : '🔇' }}</span>
+            <span aria-hidden="true">{{ sound.isEnabled ? '🔊' : '🔇' }}</span>
           </button>
 
           <template v-if="isAuthed">
@@ -142,25 +142,27 @@
 </template>
 
 <script setup lang="ts">
-<<<<<<< HEAD
-const colorMode = useColorMode()
-	const route = useRoute()
-	const userStore = useUserStore()
-	const authStore = useAuthStore()
-	const supabaseUser = useSupabaseUser()
-	const sound = useSound()
-	const announcer = useAnnouncer()
-	const menuOpen = ref(false)
-	const avatarWrap = ref<HTMLElement | null>(null)
-=======
 import { useUserStore } from '~/stores/userStore'
 import { useAuthStore } from '~/stores/authStore'
->>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
 
-	const isAuthed = computed(() => !!supabaseUser.value || authStore.isAuthenticated)
+const route     = useRoute()
+const colorMode = useColorMode()
+const announcer = useAnnouncer()
+const sound     = useSound()
+
+const userStore = useUserStore()
+const authStore = useAuthStore()
+
+const menuOpen   = ref(false)
+const avatarWrap = ref<HTMLElement | null>(null)
+
+const isAuthed = computed(() => authStore.isAuthenticated)
+
+// SSR-safe: colorMode.value is undefined on the server; fall back to 'light'
+const currentColorMode = computed(() => colorMode.value ?? 'light')
 
 const toggleColorMode = () => {
-  colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
+  colorMode.preference = currentColorMode.value === 'dark' ? 'light' : 'dark'
 }
 
 	const navLinks = computed(() => {
@@ -200,12 +202,18 @@ const menuItems = [
   { to: '/upload', icon: '📄', label: 'Upload Docs' },
 ]
 
+const handleDocumentClick = (e: MouseEvent) => {
+  if (avatarWrap.value && !avatarWrap.value.contains(e.target as Node)) {
+    menuOpen.value = false
+  }
+}
+
 onMounted(() => {
-  document.addEventListener('click', (e) => {
-    if (avatarWrap.value && !avatarWrap.value.contains(e.target as Node)) {
-      menuOpen.value = false
-    }
-  })
+  document.addEventListener('click', handleDocumentClick)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleDocumentClick)
 })
 
 const handleSignOut = async () => {

@@ -1,8 +1,4 @@
-/**
- * api.client.ts — client-side app initialization plugin
- * Reads auth_token cookie → calls /api/auth/me → hydrates stores.
- * Uses authStore.setToken() and authStore.setUser() which actually exist.
- */
+
 import { useAuthStore } from '~/stores/authStore'
 import { useUserStore } from '~/stores/userStore'
 
@@ -12,35 +8,47 @@ export default defineNuxtPlugin(async () => {
   const route     = useRoute()
   const config    = useRuntimeConfig()
 
-  // Handle Google OAuth callback: /auth/confirm?token=xxx
   const urlToken = route.query.token as string | undefined
-  if (urlToken && import.meta.client) {
-    const cookie = useCookie('auth_token', { maxAge: 60 * 60 * 24 * 7, path: '/' })
-    cookie.value = urlToken
+  if (urlToken) {
+    authStore.setToken(urlToken)
     await navigateTo(route.path, { replace: true })
-    return
   }
 
-  // Read JWT from cookie
-  const cookie = useCookie<string | null>('auth_token')
-  if (!cookie.value) return
+  const authCookie = useCookie<string | null>('auth_token')
+  const activeToken = authCookie.value
 
-  // Set token immediately so isAuthenticated is reactive
-  authStore.setToken(cookie.value)
+  if (!activeToken) return
+
+  authStore.setToken(activeToken)
 
   try {
     const me = await $fetch<any>(`${config.public.apiBase}/api/auth/me`, {
-      headers:     { Authorization: `Bearer ${cookie.value}` },
+      headers:     { Authorization: `Bearer ${activeToken}` },
       credentials: 'include',
     })
-    authStore.setUser(me)
+
+    authStore.setUser({
+      id:        me.id        ?? me.user_id ?? '',
+      email:     me.email     ?? '',
+      username:  me.username  ?? '',
+      full_name: me.full_name ?? '',
+      is_admin:  me.is_admin  ?? false,
+    })
+
+    userStore.syncFromAuth(me.full_name || me.username || '', me.email || '')
+
     await userStore.fetchProfile()
-    if (me) userStore.syncFromAuth(me.full_name || me.username || '', me.email || '')
-  } catch (err) {
-    console.warn('[api.client] Auth hydration failed — clearing session')
+
+  } catch (err: any) {
+    console.warn('[api.client] Session verification failed:', err?.status ?? err)
+
     authStore.setToken(null)
     authStore.setUser(null)
-    const c = useCookie('auth_token')
-    c.value  = null
+
+    const publicRoutes = ['/', '/auth/', '/leaderboard']
+    const isPublic     = publicRoutes.some(p => route.path.startsWith(p))
+    if (!isPublic) {
+      await navigateTo(`/auth/login?redirect=${encodeURIComponent(route.path)}`)
+    }
   }
 })

@@ -92,7 +92,7 @@ export const useGameStore = defineStore('game', {
     },
 
     // ── Load document-generated questions (from uploadStore) ──────
-    loadDocumentQuestions(questions: any[], documentId: string) {
+    loadDocumentQuestions(questions: any[], _documentId?: string) {
       this.questions = questions
       this.source    = 'document'
       this.sessionId = null  // no server session for doc-only preview

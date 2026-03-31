@@ -1,17 +1,20 @@
 // composables/useAuth.ts
 export const useAuth = () => {
-  const supabase = useSupabaseClient()
-  const user = useSupabaseUser()
+  const authStore = useAuthStore()
+
+  const user = computed(() => authStore.user)
+  const token = computed(() => authStore.token)
+  const isAuthenticated = computed(() => authStore.isAuthenticated)
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (!error) {
-      return navigateTo('/auth/login')
-    }
+    await authStore.signOut()
   }
 
   return {
     user,
-    signOut
+    token,
+    isAuthenticated,
+    signOut,
   }
 }
+

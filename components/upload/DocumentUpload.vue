@@ -95,33 +95,21 @@
       </Transition>
     </div>
 
-    <!-- File Inventory List -->
-    <Transition name="slide-up">
-      <div v-if="uploadStore.files.length > 0" class="rounded-3xl border border-paper-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
-        <h3 class="mb-4 text-[10px] font-black uppercase tracking-widest text-sage">Queue Inventory</h3>
-        <ul class="space-y-2">
-          <li v-for="file in uploadStore.files" :key="file.id" 
-              class="flex items-center justify-between rounded-2xl bg-paper-50 p-4 transition-colors dark:bg-white/5">
-            <div class="flex items-center gap-4 min-w-0">
-              <span class="text-xl shrink-0">{{ getFileIcon(file.type) }}</span>
-              <div class="min-w-0">
-                <p class="truncate text-sm font-bold tracking-tight text-paper-900 dark:text-white">{{ truncateName(file.name) }}</p>
-                <p class="text-[10px] font-bold text-sage">{{ formatSize(file.size) }}</p>
-              </div>
-            </div>
-            <button 
-              v-if="!uploadStore.isProcessing"
-              @click.stop="uploadStore.removeFile(file.id)"
-              class="flex h-8 w-8 items-center justify-center rounded-lg text-sage transition hover:bg-error/10 hover:text-error"
-            >
-              ✕
-            </button>
-          </li>
-        </ul>
-      </div>
-    </Transition>
+    <!-- Subject Selector (Shown when files are ready) -->
+    <div v-if="uploadStore.files.length > 0 && !uploadStore.isProcessing && !isDone"
+      class="bg-white border border-paper-200 rounded-[2rem] p-6 flex flex-col gap-3 dark:bg-white/5 dark:border-white/10">
+      <p class="text-[10px] font-black uppercase tracking-widest text-sage">
+        Assign Subject Context
+      </p>
+      <select v-model="selectedSubject"
+        class="w-full bg-paper-50 border border-paper-200 rounded-xl px-4 py-3 text-scholar-900 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-scholar-600/20 transition dark:bg-white/5 dark:text-white dark:border-white/10">
+        <option v-for="opt in subjectOptions" :key="opt.value" :value="opt.value">
+          {{ opt.label }}
+        </option>
+      </select>
+    </div>
 
-    <!-- Global Actions -->
+    <!-- Actions -->
     <div class="flex flex-col gap-3 sm:flex-row">
       <button 
         v-if="uploadStore.files.length > 0 && !uploadStore.isProcessing && !isDone"
@@ -147,87 +135,29 @@
       </template>
     </div>
 
-<<<<<<< HEAD
-    <!-- Generated Preview -->
-    <Transition name="fade-scale">
-      <div v-if="isDone && uploadStore.generatedQuestions.length > 0" class="space-y-6 pt-4">
-        <h3 class="font-display text-xl font-black tracking-tight">Session Preview</h3>
-        <div class="space-y-4">
-          <div v-for="(q, i) in uploadStore.generatedQuestions.slice(0, 3)" :key="q.id" 
-               class="rounded-3xl border border-paper-200 bg-white p-6 shadow-sm transition-all hover:border-scholar-600/40 dark:border-white/10 dark:bg-white/5">
-            <div class="flex items-start gap-4">
-              <span class="font-mono text-xs font-black text-scholar-600">{{ String(i + 1).padStart(2, '0') }}</span>
-              <div class="space-y-3">
-                <p class="text-base font-bold leading-relaxed">{{ q.question }}</p>
-                <span class="inline-block rounded-lg bg-scholar-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-scholar-700 dark:bg-scholar-900/40 dark:text-scholar-100">
-                  {{ q.subject }}
-                </span>
-              </div>
-=======
-
-    <!-- Subject selector — shown when files are ready but not yet processed -->
-    <div v-if="uploadStore.files.length > 0 && !uploadStore.isProcessing && !isDone"
-      class="bg-navy-800 border border-navy-600 rounded-xl p-4 flex flex-col gap-3">
-      <p class="text-[11px] font-bold uppercase tracking-widest text-navy-400">
-        Which subject are these notes for?
-      </p>
-      <select v-model="selectedSubject"
-        class="w-full bg-navy-700 border border-navy-500 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 transition"
-        aria-label="Select subject for uploaded document">
-        <option v-for="opt in subjectOptions" :key="opt.value" :value="opt.value">
-          {{ opt.label }}
-        </option>
-      </select>
-    </div>
-
-    <!-- Action buttons -->
-    <div class="flex gap-3 flex-wrap">
-      <button v-if="uploadStore.files.length > 0 && !uploadStore.isProcessing && !isDone"
-        class="flex-1 min-w-[180px] flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-gold-500 text-navy-900 text-sm font-bold hover:bg-gold-400 transition-all duration-200 shadow-cta disabled:opacity-60"
-        :disabled="uploadStore.isProcessing"
-        aria-label="Process uploaded files and generate quiz questions"
-        @click="processFiles">
-        <span aria-hidden="true">⚡</span> Generate Questions
-      </button>
-      <button v-if="isDone"
-        class="flex-1 min-w-[180px] flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-gold-500 text-navy-900 text-sm font-bold hover:bg-gold-400 transition-all duration-200 shadow-cta"
-        aria-label="Start a quiz with the generated questions"
-        @click="startDocQuiz">
-        <span aria-hidden="true">🎯</span> Start Quiz from Documents
-      </button>
-      <button v-if="isDone"
-        class="flex items-center justify-center gap-2 px-5 py-3 rounded-lg border border-navy-500 bg-transparent text-sm font-semibold text-white hover:bg-navy-600 hover:border-navy-400 transition-all duration-200"
-        aria-label="Upload more documents"
-        @click="resetUpload">
-        Upload More
-      </button>
-    </div>
-
-    <!-- Preview -->
-    <Transition name="preview-reveal">
-      <div v-if="isDone && uploadStore.generatedQuestions.length > 0" class="bg-navy-800 border border-navy-600 rounded-xl p-5">
-        <h3 class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-navy-400 mb-4">
-          Generated questions preview
-          <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wide bg-gold-500/10 text-gold-500 border border-gold-500/30">
-            {{ uploadStore.generatedQuestions.length }} total
+    <!-- Question Preview -->
+    <Transition name="slide-up">
+      <div v-if="isDone && uploadStore.generatedQuestions.length > 0" class="bg-white border border-paper-200 rounded-[2.5rem] p-8 dark:bg-white/5 dark:border-white/10">
+        <h3 class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-sage mb-6">
+          AI Intelligence Preview
+          <span class="px-2 py-0.5 rounded-full bg-scholar-100 text-scholar-700 dark:bg-scholar-900/40 dark:text-scholar-100">
+            {{ uploadStore.generatedQuestions.length }} items
           </span>
         </h3>
-        <ul role="list" aria-label="Preview of generated questions" class="flex flex-col gap-2.5 list-none">
+        <ul class="space-y-4">
           <li v-for="(q, i) in uploadStore.generatedQuestions.slice(0, 3)" :key="q.id"
-            class="flex items-start gap-3 px-3 py-3 bg-navy-700 border border-navy-600 rounded-lg animate-slide-up"
-            :style="{ animationDelay: `${i * 100}ms` }">
-            <span class="font-mono text-[11px] text-navy-400 mt-0.5 flex-shrink-0 min-w-[24px]">
+            class="flex items-start gap-4 p-5 bg-paper-50 border border-paper-100 rounded-2xl dark:bg-white/5 dark:border-white/10">
+            <span class="font-mono text-xs font-bold text-sage">
               {{ String(i + 1).padStart(2, '0') }}
             </span>
             <div class="flex-1 min-w-0">
-              <p class="text-sm text-white leading-relaxed mb-2">{{ q.question }}</p>
-              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wide bg-purple-500/10 text-purple-400 border border-purple-500/30">
+              <p class="text-sm font-bold text-paper-900 leading-relaxed mb-2 dark:text-white">{{ q.question }}</p>
+              <span class="text-[9px] font-black uppercase tracking-widest text-scholar-600">
                 {{ q.subject }}
               </span>
->>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
             </div>
-          </div>
-        </div>
+          </li>
+        </ul>
       </div>
     </Transition>
   </div>
@@ -240,26 +170,22 @@ const uploadStore = useUploadStore()
 const router = useRouter()
 const sound = useSound()
 
-<<<<<<< HEAD
 const fileInput = ref<HTMLInputElement | null>(null)
-=======
-const fileInput  = ref<HTMLInputElement | null>(null)
 const selectedSubject = ref('jamb')
-const selectedField   = ref('exam_prep')
-
-const subjectOptions = [
-  { value: 'jamb',         label: 'JAMB' },
-  { value: 'waec',         label: 'WAEC' },
-  { value: 'programming',  label: 'Programming' },
-  { value: 'mathematics',  label: 'Mathematics' },
-  { value: 'physics',      label: 'Physics' },
-  { value: 'chemistry',    label: 'Chemistry' },
-  { value: 'biology',      label: 'Biology' },
-  { value: 'general',      label: 'General' },
-]
->>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
+const selectedField = ref('exam_prep')
 const isDragging = ref(false)
 const dragCounter = ref(0)
+
+const subjectOptions = [
+  { value: 'jamb', label: 'JAMB' },
+  { value: 'waec', label: 'WAEC' },
+  { value: 'programming', label: 'Programming' },
+  { value: 'mathematics', label: 'Mathematics' },
+  { value: 'physics', label: 'Physics' },
+  { value: 'chemistry', label: 'Chemistry' },
+  { value: 'biology', label: 'Biology' },
+  { value: 'general', label: 'General' },
+]
 
 const isDone = computed(() => !uploadStore.isProcessing && uploadStore.generatedQuestions.length > 0)
 
@@ -270,7 +196,7 @@ const handleFileSelect = (e: Event) => {
   if (t.files) {
     Array.from(t.files).forEach(f => {
       uploadStore.addFile(f)
-      sound.playUpload()
+      sound.playUpload?.()
     })
   }
   if (fileInput.value) fileInput.value.value = ''
@@ -284,38 +210,31 @@ const handleDrop = (e: DragEvent) => {
   if (e.dataTransfer?.files) {
     Array.from(e.dataTransfer.files).forEach(f => {
       uploadStore.addFile(f)
-      sound.playUpload()
+      sound.playUpload?.()
     })
   }
 }
 
 const processFiles = async () => {
-  sound.playClick()
-<<<<<<< HEAD
-  await uploadStore.processFiles()
-  sound.playLevelUp()
-}
-=======
+  sound.playClick?.()
   await uploadStore.processFiles(
     selectedSubject.value || 'general',
-    selectedField.value   || 'exam_prep',
+    selectedField.value || 'exam_prep',
     uploadStore.files[0]?.name?.replace(/\.[^/.]+$/, '') || 'My Document'
   )
-  sound.playLevelUp()
+  sound.playLevelUp?.()
 }
-const startDocQuiz = () => { sound.playClick(); router.push('/quiz?mode=documents') }
-const resetUpload  = () => uploadStore.$reset()
->>>>>>> 528f624ee02fab2114845861a921f71a194dabf7
 
-const startDocQuiz = () => {
-  sound.playClick()
-  router.push('/quiz?mode=documents')
+const startDocQuiz = () => { 
+  sound.playClick?.()
+  router.push('/quiz?mode=documents') 
 }
 
 const resetUpload = () => {
   uploadStore.$reset()
 }
 
+// Helpers
 const getFileIcon = (type: string) => type.includes('pdf') ? '📕' : type.includes('doc') ? '📘' : '📄'
 const formatSize = (b: number) => b < 1024 ? `${b} B` : b < 1048576 ? `${(b/1024).toFixed(1)} KB` : `${(b/1048576).toFixed(1)} MB`
 const truncateName = (name: string, max = 32) => {

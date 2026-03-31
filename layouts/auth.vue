@@ -16,7 +16,7 @@
       <button @click="toggleTheme" 
         class="flex h-10 w-10 items-center justify-center rounded-xl border border-paper-200 bg-white shadow-sm transition-all hover:border-scholar-600 dark:border-white/10 dark:bg-white/5 dark:text-paper-50"
         aria-label="Toggle visual mode">
-        <span v-if="colorMode.value === 'dark'">☀️</span>
+        <span v-if="currentColorMode === 'dark'">☀️</span>
         <span v-else>🌙</span>
       </button>
     </header>
@@ -43,5 +43,5 @@
 
 <script setup lang="ts">
 const colorMode = useColorMode()
-const toggleTheme = () => { colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark' }
+const toggleTheme = () => { colorMode.preference = currentColorMode === 'dark' ? 'light' : 'dark' }
 </script>
